@@ -1,7 +1,30 @@
-# Vue 3 + Vite
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
 
-## Recommended IDE Setup
+技术栈	
 
-- [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
+- vue3
+- vue-router
+- vuex
+- element-plus
+
+二手平台交易网站   数据为模拟数据, 存放在 src/data 下, 因此不需要配任何东西
+
+### 主界面
+
+<img src="README.assets/image-20220325154011222.png" alt="image-20220325154011222" style="zoom: 50%;" />
+
+### 模糊查询
+
+<img src="README.assets/image-20220325154224500.png" alt="image-20220325154224500" style="zoom:50%;" />
+
+### 商品详情界面
+
+<img src="README.assets/image-20220325154019151.png" alt="image-20220325154019151" style="zoom:50%;" />
+
+### 付款界面
+
+<img src="README.assets/image-20220325154044790.png" alt="image-20220325154044790" style="zoom:50%;" />
+
+### 订单界面
+
+<img src="README.assets/image-20220325154148468.png" alt="image-20220325154148468" style="zoom:50%;" />
