@@ -16,9 +16,9 @@ const cancelOrder = (index) => {
     <br />
     <el-card v-for="(good, index) in allOrder" class="single-card">
       <div class="single_item">
-        <el-image style="width: 10.6em" :src="`../../${good.src}`" />
+        <el-image style="width: 10.6em" :src="`../../src/assets/picture/${good.src}`" />
         <div class="single_info">
-          <p class="good-description">{{ good.description }}</p>
+          <p class="good-description">{{ good.good_description }}</p>
           <p>￥{{ good.price }}</p>
         </div>
         <div class="delete-button">

@@ -1,21 +1,55 @@
 
 <script setup>
-import { ref, reactive, watch, computed } from 'vue'
-import initialPictureSrc from '../data/pictureSrc.js'
+import { ref, reactive, watch, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 const store = useStore()
 const shoppingCartData = computed(() => store.state.shoppingCartData)
 const allOrder = computed(() => store.state.orderData)
 
+
+let initData = ref([])
+// 获取数据
+const getData = async () => {
+  const req = fetch('http://localhost:4000/goods/selectAll', {
+    method: 'get',
+  })
+  const stream = await req;
+  const res = await stream.text();
+  return res;
+}
+let allData = null
+let sourceGoodsData = null
+
+const initialData = async () => {
+  const endData = {}
+  let res = await getData()
+  allData = JSON.parse(res)
+  const set = new Set()
+  JSON.parse(res).forEach(i => {
+    if (!set.has(i.category_name)) {
+      set.add(i.category_name)
+      endData[i.category_name] = [i]
+    } else {
+      endData[i.category_name].push(i)
+    }
+  })
+  initData.value = endData
+  sourceGoodsData = endData
+}
+
+onMounted(() => {
+  initialData()
+})
+
+
 const router = useRouter()
 // 搜索框数据
 const selectData = ref('')
 const activeTagName = ref('手机')
 
-const sourceGoodsData = initialPictureSrc
 let data = reactive({
-  displayGoodsData: initialPictureSrc
+  displayGoodsData: initData
 })
 const resetSelectData = () => {
   selectData.value = ''
@@ -24,19 +58,16 @@ const resetSelectData = () => {
 watch(selectData, () => {
   const res = []
   if (selectData.value) {
-    sourceGoodsData.forEach(category => {
-      if (category.children) {
-        category.children.forEach(e => {
-          if (e.name.slice(0, selectData.value.length).toLowerCase() === selectData.value.toLowerCase()) {
-            res.push(e)
-          }
-        })
+
+    allData.forEach(e => {
+      if (e.good_name.slice(0, selectData.value.length).toLowerCase() === selectData.value.toLowerCase()) {
+        res.push(e)
       }
     })
-    data.displayGoodsData = [{
-      category_name: '搜索的商品',
-      children: res
-    }]
+
+    data.displayGoodsData = {
+      '搜索的商品': res
+    }
   }
   activeTagName.value = '搜索的商品'
   if (!selectData.value.length) {
@@ -89,18 +120,17 @@ const toOrder = () => {
   </el-card>
   <el-card class="box-card">
     <el-tabs v-model="activeTagName">
-      <el-tab-pane
-        v-for="category in data.displayGoodsData"
-        :label="category.category_name"
-        :name="category.category_name"
-      >
+      <el-tab-pane v-for="(category, index) in data.displayGoodsData" :label="index" :name="index">
         <el-row>
-          <el-col v-for="goods in category.children" :key="goods" :span="4">
-            <el-card class="goods-card" @click="toDatil(goods)">
-              <el-image style="width: 10.6em; height: 10.6em" :src="goods.src" />
+          <el-col v-for="good in category" :key="good" :span="4">
+            <el-card class="goods-card" @click="toDatil(good)">
+              <el-image
+                style="width: 10.6em; height: 10.6em"
+                :src="`src/assets/picture/${good.src}`"
+              />
               <div class="goods-description">
-                <div>{{ goods.name }}</div>
-                <div>￥{{ goods.price }}</div>
+                <div>{{ good.good_name }}</div>
+                <div>￥{{ good.price }}</div>
               </div>
             </el-card>
           </el-col>

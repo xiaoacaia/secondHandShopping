@@ -7,12 +7,8 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const store = useStore()
 const route = useRoute()
-const detailData = route.params.name ? route.params : {
-  src: 'src/assets/picture/b59706fd5e43e196.jpg',
-  description: 'Apple iPhone 13 Pro Max (A2644) 256GB 远峰蓝色 支持移动联通电信5G 双卡双待手机',
-  name: 'iPhone 13 Pro Max',
-  price: 5000
-}
+const detailData = route.params.good_name ? route.params : { "id": "1", "good_name": "iPhone 13 Pro Max", "category_name": "手机", "good_description": "Apple iPhone 13 Pro Max (A2644) 256GB 远峰蓝色 支持移动联通电信5G 双卡双待手机", "price": "5000", "src": "b59706fd5e43e196.jpg" }
+
 
 let isAdd = 0
 const addGoodsToShoppingCart = () => {
@@ -42,10 +38,10 @@ const leaveMessage = () => {
 <template>
   <div class="outer-detail">
     <div class="display-picture">
-      <el-image :src="detailData.src" fit="cover" />
+      <el-image :src="`src/assets/picture/${detailData.src}`" fit="cover" />
     </div>
     <div class="description">
-      <h2>{{ detailData.description }}</h2>
+      <h2>{{ detailData.good_description }}</h2>
       <div class="goods-price">
         价格 :
         <span style="color: #e4393c">￥{{ detailData.price }}</span>
