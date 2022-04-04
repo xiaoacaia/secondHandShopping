@@ -69,6 +69,46 @@ export default async (app) => {
 }
 ```
 
+#### 路由读取
+
+在 `core/src/hooks/routers.ts` 下,通过 glob, 递归读取所匹配的子目录, 通过 `await import` 导入 `run/src/routers/` 下的 所有文件, 然后 push 进 `routers` 中, 再将 `routers` 通过 `koa-compose` 将多个函数合并成一个函数
+
+```ts
+import glob from 'glob';
+import path from 'path';
+import compose from 'koa-compose';
+
+export default async (app) => {
+  const routerFiles = glob.sync(path.resolve(app.appPath, './routers', `**/*${app.extName}`));
+  const registerRouter = async () => {
+    let routers: any[] = [];
+    for (let file of routerFiles) {
+      const router = await import(file);
+      routers.push(router.default.routes());
+    }
+    return compose(routers)
+  }
+  app.use(await registerRouter())
+}
+```
+
+#### 配置文件读取
+
+在 `core/src/index.ts` 在 
+
+最初, 启动项目命令 `cross-env NODE_ENV=development nodemon -e ts,ejs --exec ts-node -T ./packages/run/src/index.ts"`
+
+传入 NODE_ENV 变量, 通过 `process.env.NODE_ENV` 获取, 将其与 `run/src/config` 进行拼接, 生成配置文件路径, 存入 app 中, 之后可通过 `app.config` 使用配置文件中的内容
+
+```js
+const env = process.env.NODE_ENV
+const extName = app.extName = env === 'development' ? '.ts' : '.js';
+
+const baseConfig = await import(path.join(appPath, `config/config.base${extName}`))
+const curConfig = await import(path.join(appPath, `config/config.${env}${extName}`));
+app.config = deepMerge(baseConfig.default(app), curConfig.default(app));
+```
+
 ### 数据库
 
 mysql 使用两张表
