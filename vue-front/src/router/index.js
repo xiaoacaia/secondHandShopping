@@ -41,4 +41,16 @@ const router = createRouter({
   ]
 })
 
+router.beforeEach((to, from, next) => {
+  if (to.path == "/") {
+    next();
+  } else {
+    if (!window.localStorage.getItem("have_login")) {
+      next({ path: "/" });
+    } else {
+      next();
+    }
+  }
+});
+
 export default router

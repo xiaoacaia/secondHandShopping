@@ -1,3 +1,73 @@
+<script setup>
+import { reactive, ref,onMounted } from "vue";
+import { useStore } from 'vuex'
+const store = useStore()
+
+const loginForm = ref(null);
+const ruleForm = reactive({
+  username: "",
+  password: "",
+})
+
+let initData = ref([])
+
+const getData = async () => {
+  const req = fetch('http://localhost:4000/user/select', {
+    method: 'get',
+  })
+  const stream = await req;
+  const res = await stream.text();
+  return res;
+}
+
+const initialData = async () => {
+  let res = await getData()
+  initData.value = JSON.parse(res)
+}
+
+onMounted(() => {
+  initialData()
+})
+
+const jundgeUser = (username, password) => {
+  let find = 0
+  initData.value.forEach(i => {
+    if (i.username === username && i.password === password) find = 1
+  })
+  return find ? false : true
+}
+
+const validatePass = (rule, value, callback) => {
+  if (value === '') {
+    callback(new Error('密码不能为空'))
+  } else if (jundgeUser(ruleForm.username, ruleForm.password)) {
+    callback(new Error("账号或密码错误， 请重新输入"))
+  } else {
+    callback()
+  }
+}
+
+const rules = {
+  username: [
+    { required: true, message: "账户不能为空", trigger: "blur" },
+  ],
+  password: [
+    { required: true, validator: validatePass, trigger: 'blur' }
+  ],
+}
+
+const submitForm = async () => {
+  loginForm.value.validate((valid) => {
+    if (valid) {
+      store.commit('addName', ruleForm.username)
+      window.localStorage.setItem("have_login", JSON.stringify(`${ruleForm.username}=${ruleForm.password}`));
+      window.location.href = "/#content";
+    }
+  });
+};
+
+</script>
+
 <template>
   <div class="login-body">
     <div class="login-container">
@@ -27,44 +97,6 @@
   </div>
 </template>
 
-<script setup>
-import { reactive, ref } from "vue";
-const loginForm = ref(null);
-const ruleForm = reactive({
-  username: "",
-  password: "",
-})
-
-const validatePass = (rule, value, callback) => {
-  if (value === '') {
-    callback(new Error('密码不能为空'))
-  } else if (ruleForm.username !== 'wx' || ruleForm.password !== '123') {
-    callback(new Error("账号或密码错误， 请重新输入"))
-  } else {
-    callback()
-  }
-}
-
-const rules = {
-  username: [
-    { required: true, message: "账户不能为空", trigger: "blur" },
-  ],
-  password: [
-    { required: true, validator: validatePass, trigger: 'blur' }
-  ],
-}
-
-const submitForm = async () => {
-  console.log(ruleForm)
-  loginForm.value.validate((valid) => {
-    if (valid) {
-      window.localStorage.setItem("have_login", JSON.stringify(`${ruleForm.username}=${ruleForm.password}`));
-      window.location.href = "/#content";
-    }
-  });
-};
-
-</script>
 
 <style scoped>
 .login-body {

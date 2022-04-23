@@ -4,6 +4,8 @@
 
 后端: lerna, koa, koa-router, mysql2, @koa/cors
 
+另外通过 websocket 实现了一个简单的在线聊天功能
+
 ### 后端代码
 
 后代代码结构如下
@@ -109,9 +111,64 @@ const curConfig = await import(path.join(appPath, `config/config.${env}${extName
 app.config = deepMerge(baseConfig.default(app), curConfig.default(app));
 ```
 
+#### websocket 的使用
+
+使用到了 koa-websocket 插件
+
+```js
+import koaWebsocket from 'koa-websocket';
+
+const app = koaWebsocket(new Koa());
+app.ws.use(route.all('/chat', function (ctx) {
+  ctx.websocket.on('message', function (message) {
+    // 将接受到的信息广播给所有客户端
+    for (const client of app.ws.server.clients) {
+      client.send(message.toString())
+    }
+  });
+}));
+```
+
+客户端使用:	在留言组件中
+
+```js
+const ws = new WebSocket(`ws://127.0.0.1:4000/chat`)
+
+// 获取传来的数据
+ws.onmessage = function (msg) {
+  if (msg.data) {
+    message.value = JSON.parse(msg.data)
+  }
+}
+
+const leaveMessage = () => {
+  ElMessageBox.prompt('请输入留言内容', '留言板', {
+    confirmButtonText: '确认',
+    cancelButtonText: '取消'
+  })
+    .then(({ value }) => {
+    // .......
+    // 发送当前的信息
+    ws.send(JSON.stringify(message.value))
+    // .......
+  })
+}
+```
+
+样式判断, 判断当前的用户名称是否与数据库中的用户名称相同
+
+```html
+<el-card v-for="msg in message" class="message-item">
+  <div :style="{ 'text-align': curName === msg.curName ? 'right' : 'left' }">
+    <el-tag :type="curName === msg.curName ? '' : 'success'" style="margin-right: 20px;">{{ msg.curName }}</el-tag>
+    {{ msg.data }}
+  </div>
+</el-card>
+```
+
 ### 数据库
 
-mysql 使用两张表
+mysql 使用到了三张表
 
 分类表 category
 
@@ -119,7 +176,11 @@ mysql 使用两张表
 
 商品表 goods
 
-![image-20220404184403413](README.assets/image-20220404184403413.png)
+![image-20220423170106331](README.assets/image-20220423170106331.png)
+
+用户表 user
+
+![image-20220423170136009](README.assets/image-20220423170136009.png)
 
 查询语句
 
@@ -140,6 +201,10 @@ select g.id,g.good_name,c.category_name,g.good_description,g.price,g.src from go
 #### 商品详情界面
 
 <img src="README.assets/image-20220325154019151.png" alt="image-20220325154019151" style="zoom:50%;" />
+
+#### 留言界面
+
+<img src="README.assets/image-20220423170305420.png" alt="image-20220423170305420" style="zoom:67%;" />
 
 #### 付款界面
 

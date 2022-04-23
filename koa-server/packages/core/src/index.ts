@@ -2,6 +2,9 @@ import Koa from 'koa';
 import path from 'path';
 import { getHooks, deepMerge } from './utils'
 import { Hook, KoaApp } from './types';
+import koaWebsocket from 'koa-websocket';
+import route from 'koa-route'
+
 const hooks = ['mysql', 'bodyparser', 'cors', 'router', 'lift'];
 
 type Params = {
@@ -9,7 +12,7 @@ type Params = {
 }
 
 export default async function Run(params: Params) {
-  const app: KoaApp = (new Koa()) as KoaApp;
+  const app = koaWebsocket(new Koa());
   const { appPath } = params;
   app.appPath = appPath;
 
@@ -24,8 +27,17 @@ export default async function Run(params: Params) {
   for (const hook of allHooks) {
     try {
       await hook.default(app);
-    } catch (error) {
-    }
+    } catch (error) { }
   }
+
+
+app.ws.use(route.all('/chat', function (ctx) {
+  ctx.websocket.on('message', function (message) {
+    for (const client of app.ws.server.clients) {
+      client.send(message.toString())
+    }
+  });
+}));
+
 }
 

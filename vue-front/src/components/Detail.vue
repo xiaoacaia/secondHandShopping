@@ -30,7 +30,7 @@ const rebackToHome = () => {
 
 const leaveMessage = () => {
   router.push({
-    name: 'leave-message', params: detailData
+    name: 'leave-message', params: { id: detailData.id }
   })
 }
 </script>

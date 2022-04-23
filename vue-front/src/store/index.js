@@ -5,10 +5,14 @@ const store = createStore({
     return {
       shoppingCartData: [],
       orderData: [],
-      leaveMessage: []
+      leaveMessage: [],
+      curName: ''
     }
   },
   mutations: {
+    addName(state, payload) {
+      state.curName = payload
+    },
     addGood(state, payload) {
       state.shoppingCartData.push(payload)
     },
