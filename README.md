@@ -30,6 +30,12 @@ import Run from 'core/src'
 Run({ appPath: __dirname })
 ```
 
+> 启动前, 先通过lerna的命令`lerna bootstrap` 把代码库进行link
+>
+> lerna bootstrap
+>
+> 进入packages/run:	lerna add core
+
 在 `core/src/index.ts` 下 有类似如下代码, 用于启动项目
 
 ```ts
